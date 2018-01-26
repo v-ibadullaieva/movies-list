@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders without crashing 1`] = `
+<div>
+  <a
+    className="page__link"
+    onClick={[Function]}
+    style={Object {}}
+  >
+    Back to movies
+  </a>
+  <li>
+    <h3>
+      title
+    </h3>
+    <p>
+      1998
+    </p>
+    <p>
+      vhs
+    </p>
+    <ul>
+      <li>
+        John
+      </li>
+    </ul>
+  </li>
+</div>
+`;

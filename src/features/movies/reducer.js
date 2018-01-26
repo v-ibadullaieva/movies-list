@@ -2,7 +2,7 @@ import {
   MOVIES_FETCH_SUCCESS,
   MOVIE_FETCH_SUCCESS,
   DELETE_MOVIE_SUCCESS,
-  CREATE_MOVIE_SICCESS
+  CREATE_MOVIE_SUCCESS
 } from "./actions";
 
 const initState = {
@@ -17,10 +17,7 @@ export default (state = initState, action) => {
 
       return {
         ...state,
-        movies: {
-          ...state.movies,
-          ...newMovies
-        }
+        movies: newMovies
       };
     }
     case MOVIE_FETCH_SUCCESS: {
@@ -32,8 +29,7 @@ export default (state = initState, action) => {
         }
       };
     }
-
-    case CREATE_MOVIE_SICCESS: {
+    case CREATE_MOVIE_SUCCESS: {
       return {
         ...state,
         movies: {
@@ -43,7 +39,6 @@ export default (state = initState, action) => {
       };
     }
     case DELETE_MOVIE_SUCCESS: {
-      // TODO: check this
       const movies = Object.assign({}, state.movies);
       delete movies[action.payload];
 

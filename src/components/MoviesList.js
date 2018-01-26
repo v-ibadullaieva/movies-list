@@ -4,9 +4,24 @@ import { fetchMovies, deleteMovie } from "../features/movies/actions";
 import { Button } from "reactstrap";
 import { Link } from "react-router";
 
-class MoviesList extends Component {
+export class MoviesList extends Component {
   componentDidMount() {
-    this.props.fetchMovies();
+    this.props.fetchMovies({
+      title: this.props.location.query.title || "",
+      actor: this.props.location.query.actor || ""
+    });
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (
+      this.props.location.query.title !== nextProps.location.query.title ||
+      this.props.location.query.actor !== nextProps.location.query.actor
+    ) {
+      this.props.fetchMovies({
+        title: nextProps.location.query.title,
+        actor: nextProps.location.query.actor
+      });
+    }
   }
 
   render() {

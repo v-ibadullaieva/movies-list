@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders without crashing 1`] = `
+<div>
+  <input
+    className="form-control"
+    name="name"
+    placeholder="hello"
+    type="number"
+    value="hello"
+  />
+</div>
+`;

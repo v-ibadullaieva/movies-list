@@ -1,69 +1,94 @@
 import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
+import { Field, reduxForm, FieldArray } from "redux-form";
 import { connect } from "react-redux";
+import { Link } from "react-router";
 import { createMovie } from "../features/movies/actions";
-import { Col, Button, Form, FormGroup, Label, Input } from "reactstrap";
+import InputField from "./InputField";
+import { required, maxLength } from "../utils/validation";
+import { Col, Button, Form, FormGroup, Label } from "reactstrap";
 
-// TODO: add form validation
+const ActorsField = ({ fields }) => (
+  <Col sm={9}>
+    {fields.map((name, i) => (
+      <FormGroup row key={i}>
+        <Col sm={10}>
+          <Field
+            type="input"
+            name={`${name}.name`}
+            id="actors"
+            component={InputField}
+            className="form-control"
+            validate={required}
+          />
+        </Col>
+        <Col sm={2}>
+          <Button color="danger" onClick={() => fields.remove(i)}>
+            -
+          </Button>
+        </Col>
+      </FormGroup>
+    ))}
 
-const required = value => (value ? undefined : "Required");
-
-const renderField = ({
-  input,
-  label,
-  type,
-  name,
-  placeholder,
-  meta: { touched, error }
-}) => {
-  return (
-    <FormGroup row>
-      <Label for="title" sm={3}>
-        {label}
-      </Label>
-      <Col sm={9}>
-        <input
-          {...input}
-          type={type}
-          name={name}
-          placeholder={placeholder}
-          className="form-control"
-        />
-        {touched && (error && <span className="form-error">{error}</span>)}
-      </Col>
-    </FormGroup>
-  );
-};
+    <Button size="sm" color="success" onClick={() => fields.push({ name: "" })}>
+      +
+    </Button>
+  </Col>
+);
 
 class AddMovieForm extends Component {
+  submit = values =>
+    this.props
+      .createMovie(values)
+      .then(() => this.props.router.push("/movies"));
+
   render() {
-    const { handleSubmit, reset, submitting } = this.props;
-    const submit = values => this.props.createMovie(values).then(reset);
+    const { handleSubmit, submitting } = this.props;
 
     return (
       <div>
         <h3 className="mb-20">Add new movie</h3>
-        <Form onSubmit={handleSubmit(submit)}>
-          <Field
-            type="text"
-            name="title"
-            label="Title"
-            component={renderField}
-            placeholder="Enter movie name"
-            validate={[required]}
-          />
-          <Field
-            type="number"
-            name="year"
-            label="Release year"
-            component={renderField}
-            placeholder="Enter release year"
-            validate={[required]}
-          />
+        <Link to="/movies" className="page__link">
+          Back to movies
+        </Link>
+
+        <Form onSubmit={handleSubmit(this.submit)}>
+          <FormGroup row>
+            <Label for="title" sm={3}>
+              Title
+            </Label>
+
+            <Col sm={9}>
+              <Field
+                type="text"
+                name="title"
+                component={InputField}
+                placeholder="Enter movie name"
+                validate={required}
+              />
+            </Col>
+          </FormGroup>
+
+          <FormGroup row>
+            <Label for="title" sm={3}>
+              Release year
+            </Label>
+
+            <Col sm={9}>
+              <Field
+                type="number"
+                name="year"
+                component={InputField}
+                placeholder="Enter release year"
+                validate={[maxLength(4)]}
+              />
+            </Col>
+          </FormGroup>
+
           <FormGroup row>
             <Label for="format" sm={3}>
               Format
             </Label>
+
             <Col sm={9}>
               <Field
                 name="format"
@@ -77,25 +102,17 @@ class AddMovieForm extends Component {
               </Field>
             </Col>
           </FormGroup>
+
           <FormGroup row>
             <Label for="actors" sm={3}>
               Actors
             </Label>
-            <Col sm={9}>
-              <Field
-                type="textarea"
-                name="actors"
-                id="actors"
-                component="input"
-                className="form-control"
-              />
-              <span size="xs" className="form-plus-btn">
-                +
-              </span>
-            </Col>
+
+            <FieldArray name="actors" component={ActorsField} />
           </FormGroup>
-          <FormGroup check row>
-            <Col sm={{ size: 10, offset: 2 }}>
+
+          <FormGroup row>
+            <Col sm={{ size: 9, offset: 3 }}>
               <Button disabled={submitting} type="submit">
                 Submit
               </Button>
@@ -110,7 +127,8 @@ class AddMovieForm extends Component {
 AddMovieForm = reduxForm({
   form: "MovieForm",
   initialValues: {
-    format: "vhs"
+    format: "vhs",
+    actors: []
   }
 })(AddMovieForm);
 

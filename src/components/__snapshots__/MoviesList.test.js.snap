@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders without crashing 1`] = `
+<ul
+  className="list"
+>
+  <li
+    className="list__item"
+  >
+    <a
+      className="list__link"
+      onClick={[Function]}
+      style={Object {}}
+    >
+      title
+    </a>
+    <button
+      className="btn btn-secondary btn-sm"
+      onClick={[Function]}
+      type="button"
+    >
+      Delete
+    </button>
+  </li>
+</ul>
+`;

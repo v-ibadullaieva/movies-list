@@ -1,58 +1,62 @@
-const express = require("express");
-var bodyParser = require("body-parser");
 const fs = require("fs");
+const express = require("express");
+const bodyParser = require("body-parser");
 const cors = require("cors");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" });
+const { extractMovies, matches } = require("./utils");
+
+const DATABASE_FILE = "database/movies.json";
 
 const moviesApi = express();
 moviesApi.use(cors());
-// moviesApi.use(bodyParser.urlencoded({ extended: false }));
 moviesApi.use(bodyParser.json());
 
 moviesApi.get("/", (req, res) => {
-	fs.readFile("database/movies.json", (err, contents) => {
+	fs.readFile(DATABASE_FILE, (err, contents) => {
 		if (err) {
-			res.status(500).json({ error: err });
+			res.status(500).json(null);
 		} else {
 			const movies = JSON.parse(contents);
-			res.json(Object.values(movies));
+			res.json(
+				Object.values(movies).filter(
+					movie =>
+						matches(movie.title, req.query.title) &&
+						movie.actors.some(actor => matches(actor.name, req.query.actor))
+				)
+			);
 		}
 	});
 });
 
 moviesApi.get("/:id", (req, res) => {
-	fs.readFile("database/movies.json", (err, contents) => {
+	fs.readFile(DATABASE_FILE, (err, contents) => {
 		if (err) {
-			res.status(500).json({ error: err });
+			res.status(500).json(null);
 		} else {
 			const movie = JSON.parse(contents)[req.params.id];
 			if (movie) {
 				res.json(movie);
 			} else {
-				res.status(404).json({ error: "Not found" });
+				res.status(404).json(null);
 			}
 		}
 	});
 });
 
-// read()
-// JSON.parse
-// movies[id] = newMoview
-// JSON.stringify
-// write()
-
 moviesApi.post("/", (req, res) => {
-	fs.readFile("database/movies.json", (err, contents) => {
+	fs.readFile(DATABASE_FILE, (err, contents) => {
 		if (err) {
-			res.status(500).json({ error: err });
+			res.status(500).json(null);
 		} else {
 			const movies = JSON.parse(contents);
-			const id = Math.round(Math.random() * 100000);
+			const id = Math.round(Math.random() * 1000000);
 			const movie = { id, ...req.body };
 			movies[id] = movie;
 
-			fs.writeFile("database/movies.json", JSON.stringify(movies), err => {
+			fs.writeFile(DATABASE_FILE, JSON.stringify(movies), err => {
 				if (err) {
-					res.status(500).json({ error: err });
+					res.status(500).json(null);
 				} else {
 					res.json(movie);
 				}
@@ -61,16 +65,50 @@ moviesApi.post("/", (req, res) => {
 	});
 });
 
-moviesApi.delete("/:id", (req, res) => {
-	const movie = MOVIES.find(
-		movie => movie.id === Number.parseInt(req.params.id)
-	);
+moviesApi.post("/import", upload.single("file"), (req, res) => {
+	fs.readFile(req.file.path, "utf-8", (err, contents) => {
+		if (err) {
+			res.status(500).json(null);
+		} else {
+			const extractedMovies = extractMovies(contents);
+			fs.readFile(DATABASE_FILE, (err, contents) => {
+				if (err) {
+					res.status(500).json(null);
+				} else {
+					const movies = JSON.parse(contents);
+					extractedMovies.forEach(movie => {
+						const id = Math.round(Math.random() * 1000000);
+						movies[id] = { id, ...movie };
+					});
+					fs.writeFile(DATABASE_FILE, JSON.stringify(movies), err => {
+						if (err) {
+							res.status(500).json(null);
+						} else {
+							res.json(null);
+						}
+					});
+				}
+			});
+		}
+	});
+});
 
-	if (movie) {
-		res.json(null);
-	} else {
-		res.status(404).json({ error: "Not found" });
-	}
+moviesApi.delete("/:id", (req, res) => {
+	fs.readFile(DATABASE_FILE, (err, contents) => {
+		if (err) {
+			res.status(404).json(null);
+		} else {
+			const movies = JSON.parse(contents);
+			delete movies[req.params.id];
+			fs.writeFile(DATABASE_FILE, JSON.stringify(movies), err => {
+				if (err) {
+					res.status(500).json(null);
+				} else {
+					res.json(null);
+				}
+			});
+		}
+	});
 });
 
 const app = express();
