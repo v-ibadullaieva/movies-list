@@ -39,7 +39,7 @@ class AddMovieForm extends Component {
   submit = values =>
     this.props
       .createMovie(values)
-      .then(() => this.props.router.push("/movies"));
+      .then(() => this.props.router.push("/"));
 
   render() {
     const { handleSubmit, submitting } = this.props;

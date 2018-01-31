@@ -16,7 +16,7 @@ export class Movie extends Component {
     if (movie) {
       return (
         <div>
-          <Link to="/movies" className="page__link">
+          <Link to="/" className="page__link">
             Back to movies
           </Link>
           <li>
